@@ -10,12 +10,12 @@ namespace Task6.Controllers
     {
         private PresentationService _presentationService;
         private SlideService _slideService;
-        private ApplicationDbContext _context;
-        public EditController(PresentationService presentationService, SlideService slideService, ApplicationDbContext context)
+
+        public EditController(PresentationService presentationService, SlideService slideService)
         {
             _presentationService = presentationService;
             _slideService = slideService;
-            _context = context;
+
         }
         public async Task<IActionResult> Index(int id)
         {

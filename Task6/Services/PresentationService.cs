@@ -101,5 +101,9 @@ namespace Task6.Services
             _db.Update(presentation);
             await _db.SaveChangesAsync();
         }
+        public int GetAll()
+        {
+            return _db.Presentations.ToList().Count;
+        }
     }
 }

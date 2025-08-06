@@ -24,10 +24,10 @@ using Task6.Models;
 
         public async Task JoinPresentation(string presentationId, string userName, string userRole)
         {
-            // Добавляем пользователя к группе презентации
+
             await Groups.AddToGroupAsync(Context.ConnectionId, $"presentation_{presentationId}");
 
-            // Добавляем пользователя в хранилище
+
             var presentationUsers = _presentationUsers.GetOrAdd(presentationId,
                 _ => new ConcurrentDictionary<string, ConnectedUser>());
 
@@ -41,18 +41,16 @@ using Task6.Models;
 
             presentationUsers.AddOrUpdate(Context.ConnectionId, user, (key, oldValue) => user);
 
-            // Уведомляем всех участников о новом пользователе
             var currentUsers = presentationUsers.Values.ToList();
             await Clients.Group($"presentation_{presentationId}")
                 .SendAsync("UpdateUsersList", currentUsers);
 
-            // Уведомляем о подключении
             await Clients.Group($"presentation_{presentationId}")
                 .SendAsync("UserJoined", user);
         }
         public async Task UserRoleChanged(string presentationId, string userName, string newRole)
         {
-            // Уведомляем всех участников об изменении роли пользователя
+
             await Clients.Group($"presentation_{presentationId}")
                 .SendAsync("UserRoleChanged", userName, newRole);
         }
@@ -68,15 +66,15 @@ using Task6.Models;
         }
         public async Task LeavePresentation(string presentationId)
         {
-            // Удаляем пользователя из группы
+
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"presentation_{presentationId}");
 
-            // Удаляем пользователя из хранилища
+
             if (_presentationUsers.TryGetValue(presentationId, out var presentationUsers))
             {
                 if (presentationUsers.TryRemove(Context.ConnectionId, out var removedUser))
                 {
-                    // Уведомляем оставшихся участников
+
                     var currentUsers = presentationUsers.Values.ToList();
                     await Clients.Group($"presentation_{presentationId}")
                         .SendAsync("UpdateUsersList", currentUsers);
@@ -85,7 +83,7 @@ using Task6.Models;
                         .SendAsync("UserLeft", removedUser);
                 }
 
-                // Если в презентации никого не осталось, удаляем её из хранилища
+
                 if (presentationUsers.IsEmpty)
                 {
                     _presentationUsers.TryRemove(presentationId, out _);
@@ -95,14 +93,14 @@ using Task6.Models;
 
         public async Task AddSlide(string presentationId)
         {
-            // Уведомляем всех участников о добавлении нового слайда
+
             await Clients.Group($"presentation_{presentationId}")
                 .SendAsync("SlideAdded", Context.ConnectionId);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            // Ищем пользователя во всех презентациях и удаляем его
+
             foreach (var kvp in _presentationUsers)
             {
                 var presentationId = kvp.Key;
@@ -110,7 +108,7 @@ using Task6.Models;
 
                 if (presentationUsers.TryRemove(Context.ConnectionId, out var removedUser))
                 {
-                    // Уведомляем оставшихся участников
+
                     var currentUsers = presentationUsers.Values.ToList();
                     await Clients.Group($"presentation_{presentationId}")
                         .SendAsync("UpdateUsersList", currentUsers);
@@ -118,7 +116,7 @@ using Task6.Models;
                     await Clients.Group($"presentation_{presentationId}")
                         .SendAsync("UserLeft", removedUser);
 
-                    // Если в презентации никого не осталось, удаляем её из хранилища
+
                     if (presentationUsers.IsEmpty)
                     {
                         _presentationUsers.TryRemove(presentationId, out _);
@@ -130,7 +128,7 @@ using Task6.Models;
             await base.OnDisconnectedAsync(exception);
         }
 
-        // Получить список текущих пользователей в презентации
+
         public async Task GetCurrentUsers(string presentationId)
         {
             if (_presentationUsers.TryGetValue(presentationId, out var presentationUsers))

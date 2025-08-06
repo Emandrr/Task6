@@ -43,8 +43,10 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    [HttpGet("Home/RedirectToPresentation/{id}")]
     public IActionResult RedirectToPresentation(int id)
     {
+        if (id == 0) id = _presentationService.GetAll()-1;
         return RedirectToAction("Index", "Edit", new { id = id });
     }
 }
