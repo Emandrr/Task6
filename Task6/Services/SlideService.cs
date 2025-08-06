@@ -157,7 +157,9 @@ namespace Task6.Services
             Slide slide = Construct(presentation);
             presentation.Slides.Add(slide);
             await _presentationService.SaveToDatabase(presentation);
-            return new SlideDTO() { Id = presentation.Slides.Count, Title = slide.Title };
+            var ans = await _presentationService.GetPresentation(presentation.Id);
+            var idi = ans.Slides.Last().Id;
+            return new SlideDTO() { Id = idi , Title = slide.Title };
         }
         public Slide Construct(Presentation presentation)
         {
