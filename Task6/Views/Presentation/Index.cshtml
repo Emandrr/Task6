@@ -260,10 +260,8 @@
     }
 
     function exitPresentation() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.href = '/';
-        }
+            const url = window.location.href;
+            const id = url.split('/').pop();
+            window.location.href = '/Edit/Index/' + id;
     }
 </script>
