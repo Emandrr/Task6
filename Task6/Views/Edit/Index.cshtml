@@ -670,7 +670,7 @@
 
             let content = `<div class="slide-content ${containerClass}">`;
 
-            if (slide.textElements) {
+            if (slide.textElements.length > 0 && slide.textElements) {
                 slide.textElements.forEach(function(textElement) {
                     content += createTextElementHtml(textElement);
                 });
