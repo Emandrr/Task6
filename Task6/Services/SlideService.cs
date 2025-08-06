@@ -17,7 +17,6 @@ namespace Task6.Services
             _presentationService = presentationService;
         }
 
-        // Existing methods ...
 
         public async Task<Slide> GetSlideContent(int slideId)
         {
@@ -126,7 +125,7 @@ namespace Task6.Services
 
             if (textElement == null)
             {
-                return (true, null, null, null); // Считаем, что если элемента нет, то он уже удалён
+                return (true, null, null, null);
             }
 
             if (!HasEditPermission(textElement.Slide.Presentation, userName))
@@ -141,7 +140,6 @@ namespace Task6.Services
             return (true, null, textElementId, slideId);
         }
 
-        // Helper method for permission check
         private bool HasEditPermission(Presentation presentation, string userName)
         {
             return presentation.CreatorName == userName ||
@@ -159,7 +157,7 @@ namespace Task6.Services
             Slide slide = Construct(presentation);
             presentation.Slides.Add(slide);
             await _presentationService.SaveToDatabase(presentation);
-            return new SlideDTO() { Id = presentation.Slides.Count + 1, Title = slide.Title };
+            return new SlideDTO() { Id = presentation.Slides.Count, Title = slide.Title };
         }
         public Slide Construct(Presentation presentation)
         {

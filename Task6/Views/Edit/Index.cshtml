@@ -665,12 +665,18 @@
         }
 
         function renderSlideContent(slide) {
-            const hasElements = slide.textElements && slide.textElements.length > 0;
+            console.log(`there`)
+            let hasElements = slide.textElements;
+            if(hasElements!=null)
+            {
+                console.log(`there`)
+                hasElements = slide.textElements && slide.textElements.Length>0;
+            }
             const containerClass = hasElements ? 'has-elements' : '';
-
+            console.log(`there`)
             let content = `<div class="slide-content ${containerClass}">`;
 
-            if (slide.textElements.length > 0 && slide.textElements) {
+            if (hasElements) {
                 slide.textElements.forEach(function(textElement) {
                     content += createTextElementHtml(textElement);
                 });
