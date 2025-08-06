@@ -46,7 +46,7 @@ public class HomeController : Controller
     [HttpGet("Home/RedirectToPresentation/{id}")]
     public IActionResult RedirectToPresentation(int id)
     {
-        if (id == 0) id = _presentationService.GetAll()-1;
+        if (id == 0) id = _presentationService.GetAll();
         return RedirectToAction("Index", "Edit", new { id = id });
     }
 }
