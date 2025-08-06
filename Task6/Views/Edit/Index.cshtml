@@ -666,21 +666,16 @@
 
         function renderSlideContent(slide) {
             console.log(`there`)
-            let hasElements = slide.textElements;
-            if(hasElements!=null)
-            {
-                console.log(`there`)
-                hasElements = slide.textElements && slide.textElements.Length>0;
-            }
+            let hasElements = slide.textElements && slide.textElements.Length>0;
             const containerClass = hasElements ? 'has-elements' : '';
-            console.log(`there`)
+            console.log(`${slide.textElements[0]}`)
             let content = `<div class="slide-content ${containerClass}">`;
 
-            if (hasElements) {
+            
                 slide.textElements.forEach(function(textElement) {
                     content += createTextElementHtml(textElement);
                 });
-            }
+            
 
             content += '</div>';
             $('#slideContent').html(content);
