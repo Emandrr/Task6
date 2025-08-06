@@ -48,8 +48,10 @@
 .modal-fade {
     padding-right: 0px !important;
     width: 95%;
+    display: flex !important;
+    align-items: center !important;
 }
-/* Общие стили */
+
 .container-fluid {
     padding-right: 15px;
     padding-left: 15px;
@@ -76,7 +78,7 @@
     margin: 0.5rem auto !important;
 }
 
-/* Для больших экранов */
+
 @media (min-width: 576px) {
     .modal-dialog {
         max-width: 500px !important;
@@ -85,11 +87,14 @@
     }
 }
 
-/* Для маленьких экранов */
+
 @media (max-width: 575.98px) {
     .modal-dialog {
         max-width: 95vw !important;
         margin: 0.5rem auto !important;
         min-height: calc(100vh - 1rem) !important;
     }
+}
+.modal-open {
+    padding-right: 0px !important;
 }
