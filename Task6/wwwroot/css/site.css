@@ -1,0 +1,95 @@
+/* Адаптивные модальные окна */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem auto;
+        width: 95%;
+    }
+
+        
+}
+
+/* Адаптивная таблица */
+@media (max-width: 900px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table td, .table th {
+        white-space: nowrap;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        border: none;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+        .table tbody td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+   
+}
+.modal-fade {
+    padding-right: 0px !important;
+    width: 95%;
+}
+/* Общие стили */
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.form-control {
+    min-width: 100px;
+}
+.modal {
+    z-index: 1055 !important;
+    padding-right: 0px !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal-dialog {
+    display: flex !important;
+    align-items: center !important;
+    min-height: calc(100vh - 1rem) !important;
+    max-width: 90vw !important;
+    width: 100% !important;
+    margin: 0.5rem auto !important;
+}
+
+/* Для больших экранов */
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 500px !important;
+        min-height: calc(100vh - 3.5rem) !important;
+        margin: 1.75rem auto !important;
+    }
+}
+
+/* Для маленьких экранов */
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        max-width: 95vw !important;
+        margin: 0.5rem auto !important;
+        min-height: calc(100vh - 1rem) !important;
+    }
+}

@@ -1,0 +1,1104 @@
+﻿@model Task6.Models.Presentation
+
+@{
+    ViewData["Title"] = "Edit Presentation";
+}
+
+<div class="editor-container">
+    <div class="slides-panel">
+        <div class="slides-header">
+            <h6>Slides</h6>
+            <button class="btn btn-sm btn-primary add-slide-btn" id="addSlideBtn" title="Add Slide">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="view-mode-btn" id="viewModeBtn" title="Enter Presentation Mode">
+                <i class="fas fa-play"></i> View
+            </button>
+            <button class="btn btn-sm btn-danger delete-active-slide-btn" id="deleteSlideBtn" title="Delete Selected Slide">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="slides-list" id="slidesList">
+            @if (Model?.Slides != null)
+            {
+                @foreach (var slide in Model.Slides)
+                {
+                    <div class="slide-item" data-slide-id="@slide.Id">
+                        <div class="slide-title">@slide.Title</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-slides-message">
+                    <p>No slides available. Click the + button to add your first slide.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="slide-workspace">
+        <!-- Text Tools Panel -->
+        <div class="text-tools-panel" id="textToolsPanel">
+            <div class="text-tools-header">
+                <h6><i class="fas fa-text-height"></i> Text Elements</h6>
+                <button class="btn btn-sm btn-success" id="addTextBtn" title="Add Text Element">
+                    <i class="fas fa-plus"></i> Add Text
+                </button>
+            </div>
+            <div class="text-tools-content">
+                <div class="text-element-form" id="textElementForm" style="display: none;">
+                    <div class="form-group mb-3">
+                        <label for="textContent">Text Content (Markdown supported):</label>
+                        <textarea class="form-control" id="textContent" rows="3" placeholder="Enter your text with **bold**, *italic*, or # heading"></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="fontSize">Font Size:</label>
+                        <input type="range" class="form-range" id="fontSize" min="12" max="72" value="16">
+                        <span class="font-size-value">16px</span>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary btn-sm" id="saveTextBtn">Save</button>
+                        <button class="btn btn-secondary btn-sm" id="cancelTextBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container">
+            <div class="slide-content" id="slideContent">
+                <div class="slide-placeholder">
+                    <h3>Slide Content Area</h3>
+                    <p>Select a slide from the left panel to edit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="users-panel">
+        <div class="users-header">
+            <h6>Connected Users</h6>
+        </div>
+        <div class="users-list" id="usersList">
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .editor-container {
+        display: flex;
+        height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    .slides-panel {
+        width: 250px;
+        background-color: #ffffff;
+        border-right: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .slides-header {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+        .slides-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+    .add-slide-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .slides-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .slide-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+
+        .slide-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .slide-item.active {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+    .slide-title {
+        font-size: 14px;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .slide-workspace {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    /* Text Tools Panel */
+    .text-tools-panel {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .text-tools-header {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+    }
+
+        .text-tools-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+    .text-tools-content {
+        padding: 15px;
+    }
+
+    .text-element-form {
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .font-size-value {
+        font-size: 12px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    
+
+    .slide-container {
+        flex: 1;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .slide-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .slide-placeholder {
+        text-align: center;
+        color: #6c757d;
+    }
+
+        .slide-placeholder h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+    /* Draggable Text Elements */
+    .text-element {
+        position: absolute;
+        cursor: move;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        background-color: transparent;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+        .text-element:hover {
+            border-color: #2196f3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .text-element.dragging {
+            opacity: 0.8;
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+
+        .text-element.selected {
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+
+    .text-element-content {
+        pointer-events: none;
+        line-height: 1.4;
+    }
+
+    .text-element-controls {
+        position: absolute;
+        top: -35px;
+        right: 0;
+        display: none;
+        background: #ffffff;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .text-element:hover .text-element-controls {
+        display: flex;
+    }
+
+    .text-control-btn {
+        width: 24px;
+        height: 24px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+        .text-control-btn:hover {
+            transform: scale(1.1);
+        }
+
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    /* Slide Active State */
+    .slide-content.has-elements .slide-placeholder {
+        display: none;
+    }
+
+    .users-panel {
+        width: 280px;
+        background-color: #ffffff;
+        border-left: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .users-header {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+        .users-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+    .users-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    .user-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        position: relative;
+        animation: fadeInUser 0.3s ease-in;
+    }
+
+        .user-item.creator {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+
+        .user-item.leaving {
+            animation: fadeOutUser 0.3s ease-out forwards;
+        }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        color: white;
+    }
+
+    .user-item.creator .user-avatar {
+        background-color: #ffc107;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 2px;
+    }
+
+    .user-status {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .user-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: #28a745;
+    }
+
+    .slides-list::-webkit-scrollbar,
+    .users-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .slides-list::-webkit-scrollbar-track,
+    .users-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .slides-list::-webkit-scrollbar-thumb,
+    .users-list::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+        .slides-list::-webkit-scrollbar-thumb:hover,
+        .users-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+    .slide-adding {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    
+
+    
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
+<script>
+    let connection;
+    let currentUser = null;
+    let presentationId = '@Model?.Id';
+    let isConnected = false;
+    let currentSlideId = null;
+    let editingTextElement = null;
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    $(document).ready(function() {
+        const savedNickname = localStorage.getItem('presentationNickname');
+
+        if (savedNickname) {
+            let userRole = 'Viewer';
+
+            if ('@Model?.CreatorName' === savedNickname) {
+                userRole = 'Creator';
+            } else {
+                const editUserNames = @Html.Raw(Json.Serialize(Model?.EditUserNames));
+                if (editUserNames.includes(savedNickname)) {
+                    userRole = 'Editor';
+                }
+
+            }
+
+            currentUser = {
+                userName: savedNickname,
+                role: userRole
+            };
+
+            initializeSignalR();
+        } else {
+            alert('Nickname not found. Please login first.');
+        }
+            $(document).on('click', '.view-mode-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); 
+
+        const savedNickname = localStorage.getItem('presentationNickname');
+
+        if (savedNickname) {
+
+            if (presentationId) {
+                window.location.href = '/Edit/Presentation/' + presentationId;
+            } 
+        }
+    });
+
+        $(document).on('click', '.slide-item', function() {
+            $('.slide-item').removeClass('active');
+            $(this).addClass('active');
+
+            const slideId = $(this).data('slide-id');
+            currentSlideId = slideId;
+            loadSlide(slideId);
+
+        });
+
+
+        $('#addSlideBtn').click(function() {
+            if ($(this).hasClass('slide-adding')) {
+                return;
+            }
+            addNewSlide();
+        });
+
+        // Text element management
+        $('#addTextBtn').click(function() {
+            if (!canEdit() && !canCreate()) {
+                alert('You do not have permission to edit this presentation.');
+                return;
+            }
+
+            if (!currentSlideId) {
+                alert('Please select a slide first.');
+                return;
+            }
+
+            showTextElementForm();
+        });
+
+        $('#fontSize').on('input', function() {
+            $('.font-size-value').text($(this).val() + 'px');
+        });
+
+        $('#saveTextBtn').click(function() {
+            saveTextElement();
+        });
+
+        $('#cancelTextBtn').click(function() {
+            hideTextElementForm();
+        });
+
+
+        $(document).on('mousedown', '.text-element', function(e) {
+            if (!canEdit() && !canCreate()) return;
+
+            e.preventDefault();
+            isDragging = true;
+
+            const $element = $(this);
+            const offset = $element.offset();
+            const containerOffset = $('#slideContent').offset();
+
+            dragOffset.x = e.pageX - offset.left;
+            dragOffset.y = e.pageY - offset.top;
+
+            $element.addClass('dragging');
+            $('.text-element').removeClass('selected');
+            $element.addClass('selected');
+
+            $(document).on('mousemove.drag', function(e) {
+                if (!isDragging) return;
+
+                const newX = e.pageX - containerOffset.left - dragOffset.x;
+                const newY = e.pageY - containerOffset.top - dragOffset.y;
+
+                $element.css({
+                    left: Math.max(0, Math.min(newX, $('#slideContent').width() - $element.outerWidth())),
+                    top: Math.max(0, Math.min(newY, $('#slideContent').height() - $element.outerHeight()))
+                });
+            });
+
+            $(document).on('mouseup.drag', function() {
+                if (!isDragging) return;
+
+                isDragging = false;
+                $element.removeClass('dragging');
+
+                const position = $element.position();
+                updateTextElementPosition($element.data('text-id'), position.left, position.top);
+
+                $(document).off('mousemove.drag mouseup.drag');
+            });
+        });
+
+        $(document).on('click', '.btn-edit', function(e) {
+            e.stopPropagation();
+            const textElement = $(this).closest('.text-element');
+            editTextElement(textElement);
+        });
+
+        $(document).on('click', '.btn-delete', function(e) {
+            e.stopPropagation();
+            const textElement = $(this).closest('.text-element');
+            deleteTextElement(textElement);
+        });
+        $('#deleteSlideBtn').click(function() {
+           if(currentSlideId && confirm('Are you sure you want to delete this slide?')) {
+                deleteSlide(currentSlideId);
+            }
+        });
+        function deleteSlide(slideId) {
+            $.ajax({
+                url: `/Edit/DeleteSlide`, 
+                type: 'POST',
+                data:{ slideId:slideId,presentationId:presentationId},
+                success: function() {
+
+                    $(`.slide-item[data-slide-id="${slideId}"]`).remove();
+
+                    $('#slideContent').html('<div class="slide-placeholder"><h3>Slide Content Area</h3><p>Select a slide from the left panel to edit</p></div>');
+                    connection.invoke("SlideDeleted", presentationId,String(slideId));
+                    currentSlideId = null;
+
+                }
+            });
+        }
+        function canCreate() {
+            return currentUser && (currentUser.role === 'Creator');
+        }
+        function canEdit() {
+            return currentUser && (currentUser.role === 'Editor');
+        }
+        function checkCreatorPermissions() {
+            if (canCreate()) {
+                $('#addSlideBtn, #addTextBtn, #deleteSlideBtn').show();
+                $('.text-element-controls').show();
+            }else if (canEdit()) {
+                $('#addSlideBtn,  #deleteSlideBtn').hide();
+                $('#addTextBtn').show();
+                $('.text-element-controls').show();
+            }else{
+                $('#addSlideBtn, #addTextBtn, #deleteSlideBtn').hide();
+                $('.text-element-controls').hide();
+            }
+        }
+
+        function loadSlide(slideId) {
+            $('#slideContent').html('<div class="slide-loading">Loading slide content...</div>');
+
+            $.ajax({
+                url: '/Edit/GetSlideContent',
+                type: 'GET',
+                data: { slideId: slideId },
+                success: function(response) {
+                    if (response.success) {
+                        renderSlideContent(response.slide);
+                    } 
+                },
+                error: function() {
+                    $('#slideContent').html(`
+                        <div class="slide-placeholder">
+                            <h3>Slide ${slideId}</h3>
+                            <p>Error loading slide content</p>
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function renderSlideContent(slide) {
+            const hasElements = slide.textElements && slide.textElements.length > 0;
+            const containerClass = hasElements ? 'has-elements' : '';
+
+            let content = `<div class="slide-content ${containerClass}">`;
+
+            if (slide.textElements) {
+                slide.textElements.forEach(function(textElement) {
+                    content += createTextElementHtml(textElement);
+                });
+            }
+
+            content += '</div>';
+            $('#slideContent').html(content);
+        }
+
+        function createTextElementHtml(textElement) {
+            const markdownContent = marked.parse(textElement.text || '');
+            const canEditElement = canEdit()|| canCreate();
+
+            return `
+                <div class="text-element"
+                     data-text-id="${textElement.id}"
+                     style="left: ${textElement.positionX}px; top: ${textElement.positionY}px; font-size: ${textElement.fontSize}px;">
+                    <div class="text-element-content">${markdownContent}</div>
+                    ${canEditElement ? `
+                        <div class="text-element-controls">
+                            <button class="text-control-btn btn-edit" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-control-btn btn-delete" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function showTextElementForm() {
+            editingTextElement = null;
+            $('#textContent').val('');
+            $('#fontSize').val(16);
+            $('.font-size-value').text('16px');
+            $('#textElementForm').slideDown();
+        }
+
+        function hideTextElementForm() {
+            $('#textElementForm').slideUp();
+        }
+
+        function saveTextElement() {
+            const text = $('#textContent').val().trim();
+            const fontSize = parseInt($('#fontSize').val());
+
+            if (!text) {
+                alert('Please enter some text.');
+                return;
+            }
+
+            const data = {
+                slideId: currentSlideId,
+                text: text,
+                fontSize: fontSize,
+                positionX: editingTextElement ? editingTextElement.data('position-x') : 50,
+                positionY: editingTextElement ? editingTextElement.data('position-y') : 50
+            };
+
+            const url = editingTextElement ? '/Edit/UpdateTextElement' : '/Edit/AddTextElement';
+            if (editingTextElement) {
+                data.id = editingTextElement.data('text-id');
+            }
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'X-User-Name': currentUser.userName
+                },
+                data: data,
+                success: function(response) {
+                    if (response.success) {
+                        hideTextElementForm();
+                        const elem = response.textElement;
+                        if (editingTextElement) {
+                            updateTextElementInDOM(response.textElement);
+                            
+                                connection.invoke("TextElementUpdated", presentationId,elem);
+                            
+                        } else {
+                            addTextElementToDOM(response.textElement);
+                           
+                                connection.invoke("TextElementAdded", presentationId,elem);
+                            
+                        }
+                    } else {
+                        alert('Failed to save text element: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error saving text element: ' + error);
+                }
+            });
+        }
+
+        function editTextElement($element) {
+            const textId = $element.data('text-id');
+
+            $.ajax({
+                url: '/Edit/GetTextElement',
+                type: 'GET',
+                data: { textElementId: textId },
+                success: function(response) {
+                    if (response.success) {
+                        editingTextElement = $element;
+                        $('#textContent').val(response.textElement.text);
+                        $('#fontSize').val(response.textElement.fontSize);
+                        $('.font-size-value').text(response.textElement.fontSize + 'px');
+                        $('#textElementForm').slideDown();
+                    }
+                },
+                error: function() {
+                    alert('Error loading text element for editing.');
+                }
+            });
+        }
+
+        function deleteTextElement($element) {
+            if (!confirm('Are you sure you want to delete this text element?')) {
+                return;
+            }
+
+            const textId = $element.data('text-id');
+
+            $.ajax({
+                url: '/Edit/DeleteTextElement',
+                type: 'POST',
+                headers: {
+                    'X-User-Name': currentUser.userName
+                },
+                data: { textElementId: textId, slideId: currentSlideId  },
+                success: function(response) {
+                    if (response.success) {
+                         connection.invoke("TextElementDeleted", presentationId, response.textElement);
+                        
+                    } else {
+                        alert('Failed to delete text element: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting text element: ' + error);
+                }
+            });
+        }
+
+        function updateTextElementPosition(textId, positionX, positionY) {
+            $.ajax({
+                url: '/Edit/UpdateTextElementPosition',
+                type: 'POST',
+                headers: {
+                    'X-User-Name': currentUser.userName
+                },
+                data: {
+                    textElementId: textId,
+                    positionX: Math.round(positionX),
+                    positionY: Math.round(positionY)
+                },
+                success: function(response) {
+                    if (response.success) {
+                         connection.invoke("TextElementPositionUpdated", presentationId.toString(), currentSlideId.toString(), textId.toString(), Math.round(positionX).toString(), Math.round(positionY).toString());
+                    }
+                }
+            });
+        }
+
+        function addTextElementToDOM(textElement) {
+            const elementHtml = createTextElementHtml(textElement);
+            $('#slideContent').append(elementHtml);
+            $('#slideContent').addClass('has-elements');
+            $('.slide-placeholder').hide();
+        }
+
+        function updateTextElementInDOM(textElement) {
+            const $element = $(`.text-element[data-text-id="${textElement.id}"]`);
+            const markdownContent = marked.parse(textElement.text);
+
+            $element.find('.text-element-content').html(markdownContent);
+            $element.css('font-size', textElement.fontSize + 'px');
+        }
+
+        function checkSlideEmpty() {
+            if ($('#slideContent .text-element').length === 0) {
+                $('#slideContent').removeClass('has-elements');
+            }
+        }
+
+        function addNewSlide() {
+            const $addBtn = $('#addSlideBtn');
+            $addBtn.addClass('slide-adding');
+
+            $.ajax({
+                url: '/Edit/AddSlide',
+                type: 'POST',
+                headers: {
+                    'X-User-Name': currentUser.userName
+                },
+                data: {
+                    presentationId: presentationId,
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const newSlide = response.slide;
+                        addSlideToList(newSlide);
+
+                        if (connection && isConnected) {
+                            connection.invoke("SlideAdded", presentationId, newSlide);
+                        }
+                    } else {
+                        alert('Failed to add slide: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error adding slide: ' + error);
+                },
+                complete: function() {
+                    $addBtn.removeClass('slide-adding');
+                }
+            });
+        }
+
+        function addSlideToList(slide) {
+            const newSlideHtml = `
+                <div class="slide-item" data-slide-id="${slide.id}">
+                    <div class="slide-title">${slide.title}</div>
+                </div>
+            `;
+            $('#slidesList').append(newSlideHtml);
+        }
+
+        function initializeSignalR() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/presentationHub")
+                .build();
+
+            connection.on("UpdateUsersList", function (users) {
+                updateUsersList(users);
+            });
+
+            connection.on("SlideChanged", function (slideId, connectionId) {
+                if (connection.connectionId !== connectionId) {
+                    $('.slide-item').removeClass('active');
+                    $(`.slide-item[data-slide-id="${slideId}"]`).addClass('active');
+                    currentSlideId = slideId;
+                    loadSlide(slideId);
+                }
+            });
+
+            connection.on("SlideAdded", function (slide, connectionId) {
+                if (connection.connectionId !== connectionId) {
+                    addSlideToList(slide);
+                }
+            });
+
+            connection.on("TextElementAdded", function (textElement, connectionId) {
+                if (connection.connectionId !== connectionId && textElement.slideId==currentSlideId) {
+                    addTextElementToDOM(textElement);
+                }
+            });
+
+            connection.on("TextElementUpdated", function (textElement, connectionId) {
+                if (connection.connectionId !== connectionId && textElement.slideId==currentSlideId) {
+
+                    updateTextElementInDOM(textElement);
+                }
+            });
+
+            connection.on("TextElementDeleted", function (textElement, connectionId) {
+
+                if (currentSlideId == textElement.slideId) {
+                    $(`.text-element[data-text-id="${textElement.id}"]`).remove();
+                        $(this).remove();
+                        checkSlideEmpty();
+
+                }
+            });
+
+            connection.on("TextElementPositionUpdated", function (slideId, textElementId, positionX, positionY, connectionId) {
+
+                if (currentSlideId == slideId) {
+
+                    $(`.text-element[data-text-id="${textElementId}"]`).css({
+                        left: positionX+'px',
+                        top: positionY+'px'
+                    });
+                }
+            });
+
+            connection.on("UserRoleChanged", function (userName, newRole) {
+                const userElement = $(`.user-item[data-user-name="${userName}"]`);
+                if (userElement.length > 0) {
+                    userElement.attr('data-user-role', newRole);
+                    userElement.find('.user-status').text(newRole);
+
+                    const isEditor = newRole === 'Editor';
+                    const avatarIcon = isEditor ? 'fas fa-edit' : 'fas fa-user';
+                    const editorClass = isEditor ? 'editor' : '';
+
+                    userElement.find('.user-avatar i').attr('class', avatarIcon);
+                    userElement.toggleClass('editor', isEditor);
+                }
+
+                if (userName === currentUser.userName) {
+                    currentUser.role = newRole;
+                    location.reload();
+            
+                    checkCreatorPermissions();
+                }
+            });
+            connection.on("SlideDeleted", function(slideId, connectionId) {
+
+                if (String(connection.connectionId) != connectionId) {
+
+                        $(`.slide-item[data-slide-id="${slideId}"]`).remove();
+                        $('#slideContent').html('<div class="slide-placeholder"><h3>Slide Content Area</h3><p>Select a slide from the left panel to edit</p></div>');
+                        currentSlideId = null;
+                }
+            });
+            connection.start().then(function () {
+                isConnected = true;
+                connection.invoke("JoinPresentation", presentationId, currentUser.userName, currentUser.role);
+                checkCreatorPermissions();
+            }).catch(function (err) {
+                console.error('SignalR connection error:', err);
+            });
+
+            connection.onclose(function () {
+                isConnected = false;
+            });
+        }
+
+        function updateUsersList(users) {
+            const usersList = $('#usersList');
+            usersList.empty();
+
+            users.forEach(function(user) {
+                const userHtml = createUserHtml(user);
+                usersList.append(userHtml);
+            });
+
+            if (currentUser.role === 'Creator') {
+                $('.user-clickable').off('click').on('click', function() {
+                    const userName = $(this).data('user-name');
+                    const currentRole = $(this).data('user-role');
+
+                    if (userName !== currentUser.userName) {
+                        changeUserRole(userName, currentRole);
+                    }
+                });
+            }
+        }
+
+        function createUserHtml(user) {
+            const isCreator = user.role === 'Creator';
+            const isEditor = user.role === 'Editor';
+            const avatarIcon = isCreator ? 'fas fa-crown' : (isEditor ? 'fas fa-edit' : 'fas fa-user');
+            const creatorClass = isCreator ? 'creator' : (isEditor ? 'editor' : '');
+            const canChangeRole = currentUser.role === 'Creator' && user.userName !== currentUser.userName;
+            const clickableClass = canChangeRole ? 'user-clickable' : '';
+            const titleAttribute = canChangeRole ? 'title="Click to change role"' : '';
+
+            return `
+                <div class="user-item ${creatorClass} ${clickableClass}" data-connection-id="${user.connectionId}" data-user-name="${user.userName}" data-user-role="${user.role}" ${titleAttribute}>
+                    <div class="user-avatar">
+                        <i class="${avatarIcon}"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${user.userName}</div>
+                        <div class="user-status">${user.role}</div>
+                    </div>
+                    <div class="user-indicator online"></div>
+                    ${canChangeRole ? '<div class="role-change-indicator"><i class="fas fa-exchange-alt"></i></div>' : ''}
+                </div>
+            `;
+        }
+
+        function changeUserRole(userName, currentRole) {
+            if (currentUser.role !== 'Creator') {
+                return;
+            }
+
+            const newRole = currentRole === 'Editor' ? 'Viewer' : 'Editor';
+            const Role = currentUser.role;
+
+            if (confirm(`Change ${userName}'s role from ${currentRole} to ${newRole}?`)) {
+                $.ajax({
+                    url: '/Edit/ChangeUserRole',
+                    type: 'POST',
+                    headers: {
+                        'X-User-Name': currentUser.userName
+                    },
+                    data: {
+                        presentationId: presentationId,
+                        userName: userName,
+                        newRole: newRole,
+                        Role: Role
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            if (connection && isConnected) {
+                                connection.invoke("UserRoleChanged", presentationId, userName, newRole);
+                            }
+                        } else {
+                            alert('Failed to change user role: ' + (response.message || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error changing user role: ' + error);
+                    }
+                });
+            }
+        }
+
+        window.addEventListener('beforeunload', function() {
+            if (connection && isConnected) {
+                connection.invoke("LeavePresentation", presentationId);
+            }
+        });
+
+        window.addEventListener('pagehide', function() {
+            if (connection && isConnected) {
+                connection.invoke("LeavePresentation", presentationId);
+            }
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">

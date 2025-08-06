@@ -1,0 +1,218 @@
+﻿@model IEnumerable<Task6.Models.Presentation>
+
+@{
+    ViewData["Title"] = "All presentations";
+}
+
+<div class="container-fluid mt-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>All presentations</h1>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-outline-primary me-2" id="nicknameBtn">Enter Nickname</button>
+            <span class="me-2" id="userNameDisplay" style="display: none;">
+                <strong id="displayedName"></strong>
+                <button class="btn btn-sm btn-outline-danger ms-1" id="logoutBtn" title="Logout">
+                    Logout
+                </button>
+            </span>
+            <button class="btn btn-primary" id="createPresentationBtn">Create New Presentation</button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 w-100" id="presentationTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr data-id="@item.Id" style="cursor: pointer;">
+                                <td>@item.Name</td>
+                                <td>@(item.CreatorName ?? "Unknown")</td>
+                                <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createPresentationModal" tabindex="-1" aria-labelledby="createPresentationModalLabel" aria-hidden="true" pa>
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Добавлен modal-dialog-centered -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPresentationModalLabel">Create New Presentation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createPresentationForm" asp-action="Create" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Добавлена сетка -->
+                        <div class="col-12">
+                            <label for="presentationName" class="form-label">Presentation Name *</label>
+                            <input type="text" class="form-control" id="presentationName" name="Name" required>
+                            <div class="invalid-feedback">Please enter a presentation name.</div>
+                        </div>
+                        <input type="hidden" id="presentationAuthor" name="Author" />
+                    </div>
+                </div>
+                <div class="modal-footer d-flex flex-wrap">
+                    <!-- Гибкое расположение кнопок -->
+                    <button type="button" class="btn btn-secondary me-2 mb-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary mb-2">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="nicknameModal" tabindex="-1" aria-labelledby="nicknameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Центрирование -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nicknameModalLabel">Enter Your Nickname</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="nicknameInput" class="form-label">Nickname *</label>
+                        <input type="text" class="form-control" id="nicknameInput" placeholder="Enter your nickname" required>
+                        <div class="invalid-feedback">Please enter a nickname.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex flex-wrap">
+                <button type="button" class="btn btn-secondary me-2 mb-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary mb-2" id="saveNickname">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function updateNicknameDisplay() {
+                const savedNickname = localStorage.getItem('presentationNickname');
+                if (savedNickname) {
+                    $('#nicknameBtn').hide();
+                    $('#displayedName').text(savedNickname);
+                    $('#userNameDisplay').show();
+                } else {
+                    $('#userNameDisplay').hide();
+                    $('#nicknameBtn').show();
+                }
+            }
+
+            $('tbody').on('click', 'tr', function () {
+                const savedNickname = localStorage.getItem('presentationNickname');
+                if (savedNickname) {
+                    const presentationId = $(this).data('id');
+                    window.location.href = '/Home/RedirectToPresentation/' + presentationId;
+                } else {
+                    $('#nicknameModal').modal('show');
+                }
+            });
+
+            $('#createPresentationBtn').click(function () {
+                const savedNickname = localStorage.getItem('presentationNickname');
+                if (savedNickname) {
+                    $('#presentationAuthor').val(savedNickname);
+                    $('#createPresentationModal').modal('show');
+                } else {
+                    $('#nicknameModal').modal('show');
+                }
+            });
+
+            $('#nicknameBtn, #changeNicknameBtn').click(function () {
+                const savedNickname = localStorage.getItem('presentationNickname');
+                if (savedNickname) {
+                    $('#nicknameInput').val(savedNickname);
+                }
+                $('#nicknameModal').modal('show');
+            });
+
+            $('#logoutBtn').click(function () {
+                if (confirm('Are you sure you want to logout? This will remove your saved nickname.')) {
+                    localStorage.removeItem('presentationNickname');
+                    updateNicknameDisplay();
+                }
+            });
+
+            $('#saveNickname').click(function () {
+                const nickname = $('#nicknameInput').val().trim();
+                if (nickname) {
+                    localStorage.setItem('presentationNickname', nickname);
+                    $('#nicknameModal').modal('hide');
+                    updateNicknameDisplay();
+                    $('#nicknameInput').removeClass('is-invalid');
+                } else {
+                    $('#nicknameInput').addClass('is-invalid');
+                }
+            });
+
+            $('#nicknameInput').on('input', function () {
+                if ($(this).val().trim()) {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            let connection;
+            async function startConnection() {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/presentationHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                connection.on("ReceivePresentation", function (title, author, date) {
+                    const newRow = `<tr><td>${title}</td><td>${author}</td><td>${date}</td></tr>`;
+                    $('#presentationTable tbody').append(newRow);
+                });
+
+                try {
+                    await connection.start();
+                    console.log("SignalR Connected.");
+                    await connection.invoke("JoinGroup", "PresentationsGroup");
+                } catch (err) {
+                    console.log("Connection error: ", err);
+                    setTimeout(startConnection, 5000);
+                }
+            }
+
+            startConnection();
+            updateNicknameDisplay();
+
+            $('#createPresentationForm').submit(function (e) {
+                e.preventDefault();
+
+                const form = $(this);
+                const title = $('#presentationName').val().trim();
+                const author = $('#presentationAuthor').val().trim();
+                const date = new Date().toLocaleDateString('en-GB');
+
+                if (!title || !author) return;
+
+                $.post(form.attr('action'), form.serialize(), function () {
+                    $('#createPresentationModal').modal('hide');
+                    connection.invoke("SendPresentationToGroup", "PresentationsGroup", title, author, date);
+                });
+            });
+
+        });
+    </script>
+}
